@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"path/filepath"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	toast "gopkg.in/toast.v1"
@@ -42,17 +44,21 @@ func main() {
 				return
 			}
 
+			// only use 100 random file names to avoid too much garbage since this application closes before the windows executable completes
+			// not allowing us to delete the file after the toast is invoked
+			random := strconv.Itoa(rand.Intn(100) + 1)
+
 			if len(icon) > 0 && (icon[:7] == "http://" || icon[:8] == "https://") {
 				tmpFolder := os.TempDir()
 
-				err := DownloadFile(icon, filepath.Join(tmpFolder, "wsl-notify-send-icon-tmp.png"))
+				err := DownloadFile(icon, filepath.Join(tmpFolder, "wsl-notify-send-icon-tmp"+random+".png"))
 				if err != nil {
 					log.Fatalln(err)
 					icon = ""
 				} else {
 					// had to comment this out because the toast wasn't getting invoked before the file was removed
-					// defer os.Remove("wsl-notify-send-icon-tmp.png")
-					icon = filepath.Join(tmpFolder, "wsl-notify-send-icon-tmp.png")
+					// defer os.Remove("wsl-notify-send-icon-tmp"+random+".png")
+					icon = filepath.Join(tmpFolder, "wsl-notify-send-icon-tmp"+random+".png")
 				}
 			}
 
